@@ -1,0 +1,46 @@
+default:
+  image: homebrew/brew:latest
+
+variables:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_ANALYTICS: "1"
+  HOMEBREW_NO_INSTALL_FROM_API: "1"
+
+stages:
+  - lint
+  - test
+
+.tap-setup: &tap-setup
+  - mkdir -p "$(brew --repository)/Library/Taps/rustutils"
+  - ln -s "$CI_PROJECT_DIR" "$(brew --repository)/Library/Taps/rustutils/homebrew-tap"
+
+style:
+  stage: lint
+  before_script: *tap-setup
+  script:
+    - brew style rustutils/tap
+
+audit:
+  stage: lint
+  before_script: *tap-setup
+  script:
+    - brew audit --strict --tap=rustutils/tap
+
+install:
+  stage: test
+  before_script: *tap-setup
+  script:
+    - brew install --verbose rustutils/tap/git-lfs
+    - brew test rustutils/tap/git-lfs
+
+# Note: the install job above runs on Linux (the default homebrew/brew image)
+# and exercises the linux binaries. To also test the darwin builds you'd need
+# a macOS runner, e.g.:
+#
+# install:macos:
+#   stage: test
+#   tags: [saas-macos-medium-m1]
+#   before_script: *tap-setup
+#   script:
+#     - brew install --verbose rustutils/tap/git-lfs
+#     - brew test rustutils/tap/git-lfs
