@@ -11,9 +11,9 @@ stages:
   - test
 
 .tap-setup: &tap-setup
-  - chmod -R o-w "$CI_PROJECT_DIR"
   - mkdir -p "$(brew --repository)/Library/Taps/rustutils"
-  - ln -s "$CI_PROJECT_DIR" "$(brew --repository)/Library/Taps/rustutils/homebrew-tap"
+  - cp -r "$CI_PROJECT_DIR" "$(brew --repository)/Library/Taps/rustutils/homebrew-tap"
+  - chmod -R o-w "$(brew --repository)/Library/Taps/rustutils/homebrew-tap"
 
 style:
   stage: lint
