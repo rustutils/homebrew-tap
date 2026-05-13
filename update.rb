@@ -20,7 +20,7 @@ require "json"
 require "net/http"
 require "uri"
 
-FORMULA_DIR = File.expand_path("Formula", __dir__)
+FORMULA_DIR = File.expand_path("Formula", __dir__).freeze
 
 def die(msg)
   warn "error: #{msg}"
@@ -44,7 +44,7 @@ end
 
 def github_latest_tag(repo)
   headers = {
-    "Accept" => "application/vnd.github+json",
+    "Accept"               => "application/vnd.github+json",
     "X-GitHub-Api-Version" => "2022-11-28",
   }
   headers["Authorization"] = "Bearer #{ENV["GITHUB_TOKEN"]}" if ENV["GITHUB_TOKEN"]
@@ -77,15 +77,15 @@ def update_formula(path, target_version: nil)
 
   updated = formula.sub(/(^\s*version\s+")[^"]+(")/, "\\1#{new_version}\\2")
   updated = updated.gsub(/url\s+"([^"]+)"(\s+)sha256\s+"[0-9a-f]{64}"/) do
-    old_url = ::Regexp.last_match(1)
-    spacing = ::Regexp.last_match(2)
+    old_url = Regexp.last_match(1)
+    spacing = Regexp.last_match(2)
     new_url = old_url
               .gsub("v#{old_version}", "v#{new_version}")
               .gsub("/#{old_version}/", "/#{new_version}/")
     print "  #{File.basename(new_url)} ... "
     sha = fetch_sha256(new_url)
     puts sha
-    %(url "#{new_url}"#{spacing}sha256 "#{sha}")
+    %Q(url "#{new_url}"#{spacing}sha256 "#{sha}")
   end
 
   File.write(path, updated)
@@ -95,7 +95,7 @@ case ARGV[0]
 when nil
   die "usage: #{File.basename($PROGRAM_NAME)} <name> [version] | --all"
 when "--all"
-  Dir[File.join(FORMULA_DIR, "*.rb")].sort.each { |p| update_formula(p) }
+  Dir[File.join(FORMULA_DIR, "*.rb")].each { |p| update_formula(p) }
 else
   path = File.join(FORMULA_DIR, "#{ARGV[0]}.rb")
   die "no such formula: #{path}" unless File.exist?(path)
