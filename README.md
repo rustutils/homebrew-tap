@@ -30,4 +30,4 @@ brew tap rustutils/tap https://gitlab.com/rustutils/homebrew-tap.git
 
 ## License
 
-Each formula tracks the license of its upstream project. Tap metadata is MIT.
+Each formula tracks the license of its upstream project. Tap metadata is [MIT](LICENSE).
